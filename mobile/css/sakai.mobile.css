@@ -1,0 +1,13 @@
+#sakai3_logo {
+    margin: 20px auto 0;
+    width: 136px;
+}
+.sakai3_button {
+    margin: 0 10px;
+}
+.disabledButton {
+    opacity: 0.5;
+}
+#jqt .disabledButton.active, #jqt .disabledButton:active {
+    -webkit-border-image: url(../themes/apple/img/whiteButton.png) 0 12 0 12;
+}
