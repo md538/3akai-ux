@@ -668,7 +668,9 @@ sdata.files = {
  * expensive.
  */
 //fluid.setLogging(false);
-fluid.setLogging(true);
+if (fluid) {
+    fluid.setLogging(true);
+}
 
 
 /*

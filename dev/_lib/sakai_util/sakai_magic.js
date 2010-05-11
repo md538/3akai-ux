@@ -468,7 +468,9 @@ sakai.api.i18n.init = function(){
     // INITIALIZATION FUNCTION //
     /////////////////////////////
 
-    loadDefaultBundle();
+    if ($i18nable.length > 0) {
+        loadDefaultBundle();
+    }
 };
 
 /**
@@ -1327,7 +1329,7 @@ sakai.api.User.loadMeData = function(callback) {
         cache: false,
         success: function(data){
 
-            sakai.data.me = $.evalJSON(data);
+            sakai.data.me = data;
 
             // Check for firstName and lastName property - if not present use "rep:userId" for both (admin for example)
             if (!sakai.data.me.profile.firstName) {
