@@ -2,14 +2,15 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-
-        <!--<link rel="stylesheet" href="css/sakai.mobile.css" type="text/css" media="screen" charset="utf-8">-->
+        
+        <link rel="stylesheet" href="css/sakai.mobile.css" type="text/css" media="screen" charset="utf-8">
 
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.css";</style>
         <style type="text/css" media="screen">@import "themes/apple/theme.css";</style>
+        
         <script src="jqtouch/jquery-1.4.2.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
-        
+
         <script type="text/javascript" charset="utf-8">
             var jQt = new $.jQTouch({
                 icon: 'images/mobile_icon.png',
@@ -23,72 +24,151 @@
 
         <script src="javascript/sakai3_mobile.js" type="text/javascript" charset="utf-8"></script>
         <script src="../dev/_configuration/config.js" type="text/javascript" charset="utf-8"></script>
-        <!--<script src="../dev/_lib/jquery/jquery-ui.custom.js" type="text/javascript" charset="utf-8"></script>-->
-        <!--<script src="../dev/_lib/Fluid/3akai_Infusion.js" type="text/javascript" charset="utf-8"></script>-->
-        <!--<script src="../dev/_lib/jquery/plugins/jquery.json.js" type="text/javascript" charset="utf-8"></script>-->
         <script src="../dev/_lib/sakai_util/trimpath.template.js" type="text/javascript" charset="utf-8"></script>
-        <!--<script src="../dev/_lib/sakai_util/sdata.js" type="text/javascript" charset="utf-8"></script>-->
         <script src="../dev/_lib/sakai_util/sakai_magic.js" type="text/javascript" charset="utf-8"></script>
         <title>Sakai3 mobile</title>
     </head>
     <body id="sakai3mobile">
         <div id="jqt">
-        <!-- SIGN IN -->
-        <div id="signin" class="current">
-            <div class="toolbar">
-                <h1>Sign In</h1>
+            
+            <!-- SIGN IN -->
+            <div id="signin" class="current">
+                <div class="toolbar">
+                    <h1>Sign In</h1>
+                </div>
+                <div id="sakai3_logo">
+                    <img src="images/mobile_logo.png" width="136" height="62" alt="Mobile Logo" />
+                </div>
+                <form id="sakai3_signin" action="javascript:;" method="POST" class="form">
+                    <ul>
+                        <li>
+                            <input id="sakai3_username" type="text" placeholder="Username" />
+                        </li>
+                        <li>
+                            <input id="sakai3_password" type="password" placeholder="Password" />
+                        </li>
+                    </ul>
+                    <ul class="individual signin">
+                        <li><a class="submit" href="#">Sign in</a></li>
+                    </ul>
+                    <!--<a id="sakai3_signin_button" href="#" class="submit sakai3_button whiteButton disabledButton">Sign In</a>-->
+                    <ul id="login_fail" style="display:none;">
+                        <li>
+                            Incorrect username or password. Please try again.
+                        </li>
+                    </ul>
+                </form>
             </div>
-            <div id="sakai3_logo">
-                <img src="images/mobile_logo.png" width="136" height="62" alt="Mobile Logo" />
-            </div>
-            <form id="sakai3_signin" action="javascript:;" method="POST" class="form">
-                <ul>
-                    <li>
-                        <input id="sakai3_username" type="text" placeholder="Username" />
+            
+            <!-- MY SAKAI -->
+            <div id="mysakai">
+                <div class="toolbar">
+                    <h1>My Sakai</h1>
+                    <a class="back" href="#signin">Sign out</a>
+                </div>
+                <ul class="edgetoedge">
+                    <li class="arrow">
+                        <a href="#profile">Profile</a>
                     </li>
-                    <li>
-                        <input id="sakai3_password" type="password" placeholder="Password" />
+                    <li class="arrow">
+                        <a href="#messages">Messages</a>
                     </li>
                 </ul>
-                <a id="submit" href="#" class="submit sakai3_button whiteButton disabledButton">Sign In</a>
-                <div id="login_fail" class="sakai3_content" style="display:none;">
-                    <p>Incorrect username or password. Please try again.</p>
+            </div>
+            
+            <!-- PROFILE -->
+            <div id="profile">
+                <div class="toolbar">
+                    <h1>Profile</h1>
+                    <a class="back" href="#mysakai">My Sakai</a>
+                    <a class="button slideup" href="#profile_edit">Edit</a>
                 </div>
-            </form>
-        </div>
-
-        <!-- MY SAKAI -->
-        <div id="mysakai">
-            <div class="toolbar">
-                <h1>My Sakai</h1>
-                <a class="back" href="#signin">Sign out</a>
+                <div id="sakai3_profile">
+                    <!-- sakai3_profile_template -->
+                </div>
             </div>
-            <ul class="rounded">
-                <li class="arrow"><a href="#messages">Messages</a></li>
+            
+            <!-- PROFILE EDIT -->
+            <div id="profile_edit">
+                <div class="toolbar">
+                    <h1>Profile Edit</h1>
+                </div>
+                <ul class="individual">
+                    <li><a class="submit" href="#">Submit</a></li>
+                    <li><a class="" href="#">Cancel</a></li>
+                </ul>
+            </div>
+            
+            <!-- MESSAGES -->
+            <div id="messages">
+                <div class="toolbar">
+                    <h1>Messages</h1>
+                    <a class="back" href="#mysakai">My Sakai</a>
+                </div>
+                <div id="sakai3_messages">
+                    <!-- sakai3_messages_template -->
+                </div>
+            </div>
+
+            <!-- MESSAGE -->
+            <div id="message">
+                <div class="toolbar">
+                    <h1>Message</h1>
+                    <a class="back" href="#messages">Back</a>
+                </div>
+                <div id="sakai3_message">
+                    <!-- sakai3_message_template -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- PROFILE TEMPLATE -->
+        <div id="sakai3_profile_template"><!--
+            <ul class="rounded profile_list">
+                {if profile}
+                    <li><h1>Basic Info</h1></li>
+                    {if profile.firstName}<li><span class="crop">First name: ${profile.firstName}</span></li>{/if}
+                    {if profile.lastName}<li><span class="crop">Last name: ${profile.lastName}</span></li>{/if}
+                {/if}
+                
+                {if profile.aboutme}
+                    <li><h1>About Me</h1></li>
+                {/if}
+                
+                {if profile}
+                    <li><h1>University Contact Info</h1></li>{/if}
+                    {if profile.email}<li><span class="crop">Email: ${profile.email}</span></li>
+                {/if}
             </ul>
-        </div>
-
-        <!-- MESSAGES -->
-        <div id="messages">
-            <div class="toolbar">
-                <h1>Messages</h1>
-                <a class="back" href="#mysakai">My Sakai</a>
-            </div>
-            <div id="sakai3_messages">
-                <!-- sakai3_messages_template -->
-            </div>
-        </div>
-
+        --></div>
+        
+     <!--   
+                {if aboutme.aboutme}<li><span class="crop">About me: ${aboutme.aboutme}</span></li>{/if}
+                {if aboutme.academicinterests}<li><span class="crop">Academic Interests: ${aboutme.academicinterests}</span></li>{/if}
+                {if aboutme.personalinterests}<li><span class="crop">Personal Interests: ${aboutme.personalinterests}</span></li>{/if}
+                {if aboutme.hobbies}<li><span class="crop">Hobbies: ${aboutme.hobbies}</span></li>{/if}
+     -->
+        
         <!-- MESSAGES TEMPLATE -->
         <div id="sakai3_messages_template"><!--
+            <ul class="rounded messages_list">
             {for message in messages}
-            <div id="${message_index}" class="message{if message_index < (messages.length-1)} borderBottom{/if}">
-                ${message.from}
-                <span class="message_date">${message.created}</span><br/>
-                ${message.subject}<br/>
-            </div>
+                <li class="arrow"><a href="#message" class="message_li" id="${message.nr}">
+                    ${message.from}<span class="message_date">${message.created}</span><br/>
+                    ${message.subject}
+                </a></li>
             {/for}
-     --></div>
-        </div>
+            </ul>
+        --></div>
+        
+        <!-- MESSAGE TEMPLATE -->
+        <div id="sakai3_message_template"><!--
+            <ul class="rounded">
+                <li>From: <img src='${message.image}' alt='Image from ${message.all.from}' width="20" height="20" class="message_image" /> ${message.all.from} (${message.all.from_firstname} ${message.all.from_lastname})</li>
+                <li>Sent: ${message.all.created}</li>
+                <li>Subject: ${message.all.subject}</li>
+                <li>${message.all.body}</li>
+            </ul>
+        --></div>
     </body>
 </html>

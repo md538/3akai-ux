@@ -1,13 +1,51 @@
-#sakai3_logo {
-    margin: 20px auto 0;
-    width: 136px;
+#jqt ul.signin li {
+    width:100% !important;
 }
-.sakai3_button {
-    margin: 0 10px;
+
+#sakai3mobile #jqt .disabledButton.active, #sakai3mobile #jqt .disabledButton:active {
+    -webkit-border-image:url(../themes/apple/img/whiteButton.png) 0 12 0 12;
 }
-.disabledButton {
-    opacity: 0.5;
+
+#sakai3mobile #sakai3_logo {
+    margin:20px auto 0;
+    width:136px;
 }
-#jqt .disabledButton.active, #jqt .disabledButton:active {
-    -webkit-border-image: url(../themes/apple/img/whiteButton.png) 0 12 0 12;
+
+#sakai3mobile .crop {
+    display:block !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+}
+
+#sakai3mobile .disabledButton {
+    opacity:0.5;
+}
+
+#sakai3mobile .message_date {
+    float:right;
+    padding-right:15px;
+}
+
+#sakai3mobile .message_image {
+
+}
+
+#sakai3mobile .sakai3_button {
+    margin:0 10px;
+}
+
+/* 2010-05-12 - Maxime Debosschere
+   This is a hack which prevents the Android browser from crashing from the moment input fields are loaded.
+   Overwritten CSS: themes/apple/theme.css, rule 311 (jqTouch r135, 2010-03-14)
+   More information about this can be found at http://code.google.com/p/jqtouch/issues/detail?id=256 */
+#jqt ul li input[type="text"],
+#jqt ul li input[type="password"],
+#jqt ul li input[type="tel"],
+#jqt ul li input[type="number"],
+#jqt ul li input[type="search"],
+#jqt ul li input[type="email"],
+#jqt ul li input[type="url"],
+#jqt ul li textarea,
+#jqt ul li select {
+    background:#fff url('data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==') !important;
 }
