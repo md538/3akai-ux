@@ -2,11 +2,11 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        
-        <link rel="stylesheet" href="css/sakai.mobile.css" type="text/css" media="screen" charset="utf-8">
 
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.css";</style>
         <style type="text/css" media="screen">@import "themes/apple/theme.css";</style>
+        
+        <link rel="stylesheet" href="css/sakai.mobile.css" type="text/css" media="screen" charset="utf-8">
         
         <script src="jqtouch/jquery-1.4.2.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
@@ -41,12 +41,8 @@
                 </div>
                 <form id="sakai3_signin" action="javascript:;" method="POST" class="form">
                     <ul>
-                        <li>
-                            <input id="sakai3_username" type="text" placeholder="Username" />
-                        </li>
-                        <li>
-                            <input id="sakai3_password" type="password" placeholder="Password" />
-                        </li>
+                        <li><input id="sakai3_username" type="text" placeholder="Username" /></li>
+                        <li><input id="sakai3_password" type="password" placeholder="Password" /></li>
                     </ul>
                     <ul class="individual signin">
                         <li><a class="submit" href="#">Sign in</a></li>
@@ -64,15 +60,12 @@
             <div id="mysakai">
                 <div class="toolbar">
                     <h1>My Sakai</h1>
-                    <a class="back" href="#signin">Sign out</a>
+                    <a class="back" href="javascript:;" id="sakai3_signout">Sign out</a>
                 </div>
                 <ul class="edgetoedge">
-                    <li class="arrow">
-                        <a href="#profile">Profile</a>
-                    </li>
-                    <li class="arrow">
-                        <a href="#messages">Messages</a>
-                    </li>
+                    <li class="arrow"><a href="#profile">Profile</a></li>
+                    <li class="arrow"><a href="#messages">Messages</a></li>
+                    <li class="arrow"><a href="#chat">Chat</a></li>
                 </ul>
             </div>
             
@@ -80,7 +73,7 @@
             <div id="profile">
                 <div class="toolbar">
                     <h1>Profile</h1>
-                    <a class="back" href="#mysakai">My Sakai</a>
+                    <a class="back" href="#mysakai">Back</a>
                     <a class="button slideup" href="#profile_edit">Edit</a>
                 </div>
                 <div id="sakai3_profile">
@@ -93,17 +86,24 @@
                 <div class="toolbar">
                     <h1>Profile Edit</h1>
                 </div>
-                <ul class="individual">
-                    <li><a class="submit" href="#">Submit</a></li>
-                    <li><a class="" href="#">Cancel</a></li>
-                </ul>
+                <form id="sakai3_editprofile" action="javascript:;" method="POST" class="form">
+                    <ul>
+                        <li>Fist name: <input id="sakai3_profile_firstname" type="text" /></li>
+                        <li>Last name: <input id="sakai3_profile_lastname" type="text" /></li>
+                        <li>Email: <input id="sakai3_profile_email" type="text" /></li>
+                    </ul>
+                    <ul class="individual">
+                        <li><a class="submit" href="#">Save</a></li>
+                        <li><a class="goback" href="#">Cancel</a></li>
+                    </ul>
+                </form>
             </div>
             
             <!-- MESSAGES -->
             <div id="messages">
                 <div class="toolbar">
                     <h1>Messages</h1>
-                    <a class="back" href="#mysakai">My Sakai</a>
+                    <a class="back" href="#mysakai">Back</a>
                 </div>
                 <div id="sakai3_messages">
                     <!-- sakai3_messages_template -->
@@ -120,35 +120,80 @@
                     <!-- sakai3_message_template -->
                 </div>
             </div>
+            
+            <!-- CHAT -->
+            <div id="chat">
+                <div class="toolbar">
+                    <h1>Chat</h1>
+                    <a class="back" href="#mysakai">Back</a>
+                </div>
+                <div id="sakai3_chat">
+                    <!-- sakai3_chat_template -->
+                </div>
+            </div>
+            
+            <!-- CHAT ROOM -->
+            <div id="chatroom">
+                <div class="toolbar">
+                    <h1>Chat Room</h1>
+                    <a class="back" href="#chat">Back</a>
+                </div>
+                <div id="sakai3_chatroom">
+                    <!-- sakai3_chatroom_template -->
+                </div>
+                <div id="temp">
+                    <form id="sakai3_chatroom_form" action="javascript:;" method="POST" class="form">
+                    <ul>
+                        <li><textarea id="sakai3_chatroom_log" readonly="readonly"></textarea></li>
+                        <li><input id="sakai3_chatroom_message" type="text" placeholder="Message" /></li>
+                        <li><a class="submit" href="#">Send</a></li>
+                    </ul>
+                    </form>
+                </div>
+            </div>
         </div>
         
         <!-- PROFILE TEMPLATE -->
         <div id="sakai3_profile_template"><!--
-            <ul class="rounded profile_list">
-                {if profile}
+            <ul class="rounded profile_list">  
+                {if p}
+                    {if p.picture}<span class="message_image"><img src="${p.picture}" alt="User picture" height="45", width="45"/></span>{/if}
                     <li><h1>Basic Info</h1></li>
-                    {if profile.firstName}<li><span class="crop">First name: ${profile.firstName}</span></li>{/if}
-                    {if profile.lastName}<li><span class="crop">Last name: ${profile.lastName}</span></li>{/if}
+                    {if p.basic.status}<li><span class="crop">Status: ${p.basic.status}</span></li>{/if}
+                    {if p.firstName}<li><span class="crop">First name: ${p.firstName}</span></li>{/if}
+                    {if p.lastName}<li><span class="crop">Last name: ${p.lastName}</span></li>{/if}
+                    {if p.basic.unirole}<li><span class="crop">Role/Position: ${p.basic.unirole}</span></li>{/if}
+                    {if p.basic.unidepartment}<li><span class="crop">Department: ${p.basic.unidepartment}</span></li>{/if}
+                    {if p.basic.unicollege}<li><span class="crop">College: ${p.basic.unicollege}</span></li>{/if}
+                    {if p.basic.birthday}<li><span class="crop">Date of birth: ${p.basic.birthday}</span></li>{/if}
                 {/if}
                 
-                {if profile.aboutme}
+                {if p.aboutme}
                     <li><h1>About Me</h1></li>
+                    {if p.aboutme.aboutme}<li><span>About me: ${p.aboutme.aboutme}</span></li>{/if}
+                    {if p.aboutme.academicinterests}<li><span>Academic Interests: ${p.aboutme.academicinterests}</span></li>{/if}
+                    {if p.aboutme.personalinterests}<li><span>Personal Interests: ${p.aboutme.personalinterests}</span></li>{/if}
+                    {if p.aboutme.hobbies}<li><span>Hobbies: ${p.aboutme.hobbies}</span></li>{/if}
                 {/if}
                 
-                {if profile}
-                    <li><h1>University Contact Info</h1></li>{/if}
-                    {if profile.email}<li><span class="crop">Email: ${profile.email}</span></li>
+                {if p}
+                    <li><h1>University Contact Info</h1></li>
+                    {if p.email}<li><span class="crop">Email: ${p.email}</span></li>{/if}
+                    {if p.contactinfo.uniphone}<li><span class="crop">Phone: ${p.contactinfo.uniphone}</span></li>{/if}
+                    {if p.contactinfo.unimobile}<li><span class="crop">Mobile: ${p.contactinfo.unimobile}</span></li>{/if}
+                    {if p.contactinfo.uniaddress}<li><span>Address: ${p.contactinfo.uniaddress}</span></li>{/if}
+                {/if}
+                
+                {if p.contactinfo}
+                    <li><h1>Home Contact Info</h1></li>
+                    {if p.contactinfo.homeemail}<li><span class="crop">Email: ${p.contactinfo.homeemail}</span></li>{/if}
+                    {if p.contactinfo.homephone}<li><span class="crop">Phone: ${p.contactinfo.homephone}</span></li>{/if}
+                    {if p.contactinfo.homemobile}<li><span class="crop">Mobile: ${p.contactinfo.homemobile}</span></li>{/if}
+                    {if p.contactinfo.homeaddress}<li><span>Address: ${p.contactinfo.homeaddress}</span></li>{/if}
                 {/if}
             </ul>
         --></div>
-        
-     <!--   
-                {if aboutme.aboutme}<li><span class="crop">About me: ${aboutme.aboutme}</span></li>{/if}
-                {if aboutme.academicinterests}<li><span class="crop">Academic Interests: ${aboutme.academicinterests}</span></li>{/if}
-                {if aboutme.personalinterests}<li><span class="crop">Personal Interests: ${aboutme.personalinterests}</span></li>{/if}
-                {if aboutme.hobbies}<li><span class="crop">Hobbies: ${aboutme.hobbies}</span></li>{/if}
-     -->
-        
+
         <!-- MESSAGES TEMPLATE -->
         <div id="sakai3_messages_template"><!--
             <ul class="rounded messages_list">
@@ -168,6 +213,29 @@
                 <li>Sent: ${message.all.created}</li>
                 <li>Subject: ${message.all.subject}</li>
                 <li>${message.all.body}</li>
+            </ul>
+        --></div>
+        
+        <!-- CHAT TEMPLATE -->
+        <div id="sakai3_chat_template"><!--
+            <ul class="rounded chat_list">
+                {for contact in all}
+                        {if contact.status == "online"}
+                            <li class="arrow">
+                            <img src="images/bullet_green.png" />
+                            <a href="#chatroom" class="chat_li" id="${contact.user}">
+                        {else if contact.status == "offline"}
+                            <li>
+                            <img src="images/bullet_red.png" />
+                        {/if}
+                        
+                        ${contact.profile.firstName} ${contact.profile.lastName}
+                        
+                        {if contact.status == "online"}
+                            </a>
+                        {/if}
+                    </li>                   
+                {/for}
             </ul>
         --></div>
     </body>

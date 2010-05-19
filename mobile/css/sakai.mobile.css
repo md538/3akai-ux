@@ -11,6 +11,10 @@
     width:136px;
 }
 
+#sakai3mobile .chat_list img {
+    float:left;
+}
+
 #sakai3mobile .crop {
     display:block !important;
     overflow:hidden !important;
@@ -27,7 +31,13 @@
 }
 
 #sakai3mobile .message_image {
+    float:right;
+    padding-right:20px;
+    padding-top:8px;
+}
 
+#sakai3mobile .profile_list li, #sakai3mobile #sakai3_chatroom_log {
+    font-size:0.8em;
 }
 
 #sakai3mobile .sakai3_button {
@@ -48,4 +58,15 @@
 #jqt ul li textarea,
 #jqt ul li select {
     background:#fff url('data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==') !important;
+}
+
+/* 2010-05-18 - Maxime Debosschere
+   Fix for the rounded corners that still appeared in the Apple theme.
+   Taken from http://code.google.com/p/jqtouch/issues/detail?id=127 */
+#jqt ul.edgetoedge, #jqt ul.edgetoedge a.active {
+    -webkit-border-radius:0 !important;
+}
+
+#jqt ul li textarea {
+    height:270px;
 }

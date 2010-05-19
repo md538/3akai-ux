@@ -25,7 +25,7 @@ body > *, #jqt > * {
 }
 
 #jqt .black-translucent .toolbar {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 div#jqt .toolbar > h1 {
@@ -75,7 +75,7 @@ div#jqt.landscape .toolbar > h1 {
 }
 
 #jqt .button.active, #jqt .cancel.active, #jqt .add.active {
-    -webkit-border-image: url(img/toolButton.png) 0 5 0 5;	
+    -webkit-border-image: url(img/toolButton.png) 0 5 0 5;  
 }
 
 #jqt .blueButton {
@@ -191,7 +191,7 @@ div#jqt.landscape .toolbar > h1 {
 }
 
 #jqt ul li.arrow a { 
-	padding: 12px 22px 12px 10px;
+    padding: 12px 22px 12px 10px;
 }
 
 #jqt #plastic ul li.arrow, #jqt #metal ul li.arrow {
@@ -352,7 +352,7 @@ div#jqt.landscape .toolbar > h1 {
 #jqt ul.edgetoedge {
     -webkit-border-radius: 0;
 }
-	
+    
 #jqt ul.edgetoedge li.sep {
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(139, 159, 171, 1)), to(rgba(181, 193, 201, 1.0)));
     border-bottom: 1px solid #b5c1c9;
