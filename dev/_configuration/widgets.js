@@ -63,6 +63,20 @@ var Widgets = {
             showinsakaigoodies:true,
             url:"/devwidgets/basiclti/basiclti.html"
         },
+        bookmarkandshare: {
+            ca: true,
+            description: "Bookmark and share widget",
+            i18n: {
+                "default": "/devwidgets/bookmarkandshare/bundles/default.json",
+                "en_US": "/devwidgets/bookmarkandshare/bundles/en_US.json",
+                "nl_NL": "/devwidgets/bookmarkandshare/bundles/nl_NL.json"
+            },
+            img: "/devwidgets/bookmarkandshare/images/addthis.png",
+            id: "bookmarkandshare",
+            name: "Bookmark and share",
+            showinsakaigoodies: true,
+            url:"/devwidgets/bookmarkandshare/bookmarkandshare.html"
+        },
         changepic: {
             i18n: {
                 "default": "/devwidgets/changepic/bundles/default.json",
@@ -105,7 +119,7 @@ var Widgets = {
                 "nl_NL": "/devwidgets/delicious/bundles/nl_NL.json"
             },
             name:"Delicious",
-            personalportal:true,
+            personalportal:false,
             url:"/devwidgets/delicious/delicious.html"
         },
         discussion: {
@@ -132,6 +146,20 @@ var Widgets = {
             id:"footer",
             name:"Dynamic Footer",
             url:"/devwidgets/footer/footer.html"
+        },
+        flickr: {
+            ca: false,
+            description: "flickr widget",
+            i18n: {
+                "default": "/devwidgets/flickr/bundles/default.json",
+                "en_US": "/devwidgets/flickr/bundles/en_US.json",
+                "nl_NL": "/devwidgets/flickr/bundles/nl_NL.json"
+            },
+            id: "flickr",
+            img: "/devwidgets/flickr/images/flickr.png",
+            name: "flickr",
+            showinsakaigoodies: false,
+            url:"/devwidgets/flickr/flickr.html"
         },
         filepicker: {
             description:"Pick a file.",
