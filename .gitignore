@@ -1,4 +1,16 @@
+<<<<<<< HEAD
 .tmp_*
 .project
 /target
 *.kpf
+=======
+.classpath
+.project
+.settings
+target/
+m2-target/
+bin/
+derby.log
+create.sql
+drop.sql
+>>>>>>> ieb/master
