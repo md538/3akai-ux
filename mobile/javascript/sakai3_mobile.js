@@ -7,8 +7,10 @@ $(function(){
 
     var $sakai3_username = $("#sakai3_username");
     var $sakai3_password = $("#sakai3_password");
+    var $sakai3_body = $('body');
     var $sakai3_signin = $("#sakai3_signin");
     var $sakai3_signin_button = $("#sakai3_signin_button");
+    var $sakai3_signout = $('#sakai3_signout');
     var $sakai3_message = $("#sakai3_message");
     var $sakai3_message_template = $("#sakai3_message_template");
     var $sakai3_messages = $("#sakai3_messages");
@@ -17,9 +19,187 @@ $(function(){
     var $sakai3_profile_template = $("#sakai3_profile_template");
     var $sakai3_editprofile = $("#sakai3_editprofile");
     var $login_fail = $("#login_fail");
+    
+    var $sakai3_chat = $("#sakai3_chat");
+    var $sakai3_chat_template = $("#sakai3_chat_template");
+    
+    var $sakai3_chatroom_form = $("#sakai3_chatroom_form");
+    var $sakai3_chatroom_log = $("#sakai3_chatroom_log");
+    var $sakai3_chatroom_message = $("#sakai3_chatroom_message");
 
     var $selectedMessage;
+    var $selectedChatContact;
+    var checkingOnline = false;
     var messageArray;
+    
+    
+    
+//    /**
+//     * Scroll to the bottom of an element
+//     * @param {Object} el The element that needs to be scrolled down
+//     */
+//    var scroll_to_bottom = function(el){
+//        el.attr("scrollTop", el.attr("scrollHeight"));
+//    };
+
+
+
+
+
+
+var sendMessage = function(message){
+
+    var data = {
+        "sakai:type": "chat",
+        "sakai:sendstate": "pending",
+        "sakai:messagebox": "outbox",
+        "sakai:to": "chat:" + $selectedChatContact,
+        "sakai:from": sakai.data.me.user.userid,
+        "sakai:subject": "",
+        "sakai:body": message,
+        "sakai:category": "chat",
+        "_charset_": "utf-8"
+    };
+    
+    $.ajax({
+        url: "/_user" + sakai.data.me.profile.path + "/message.create.html",
+        type: "POST",
+        success: function(data){
+        
+            // We evaluate the response after sending
+            // the message and store it in an object
+            var response = data; // parse to json?
+            
+            // Add the id to the send messages object
+            // We need to do this because otherwise the user who
+            // sends the message, will see it 2 times
+            //addToSendMessages(response.id);
+        },
+        error: function(xhr, textStatus, thrownError){
+            alert("An error has occured when sending the message.");
+        },
+        data: data
+    });
+}
+    
+    
+    
+    
+    
+    ////////////////
+    // Array sort //
+    ////////////////
+    
+    /**
+     * Sort contacts by status, then by first name
+     * @param {Object} a First contact to sort
+     * @param {Object} b Second contact to sort
+     */
+    var sortColumns = function(a, b){
+        
+        // Status variables
+        var sA = a.status;
+        var sB = b.status;
+
+        // First name variables
+        var nA = a.profile.firstName;
+        var nB = b.profile.firstName;
+        
+        // If the status is the same
+        if (sA == sB) {
+            
+            // Sort by first name (ascending)
+            return ((nA < nB) ? -1 : ((nA > nB) ? 1 : 0));
+        } else {
+            
+            // Sort by status (descending, so online users stand above the offline ones)
+            return ((sA > sB) ? -1 : ((sA < sB) ? 1 : 0));
+        }
+    };
+
+
+    //////////
+    // Chat //
+    //////////
+    
+    var performChatSubmit = function(){
+       
+        // Input and log variables to keep the code clean
+        var input = $sakai3_chatroom_message.val();
+        var log = $sakai3_chatroom_log.val();
+
+        if (input.length > 0) {
+            
+            // Send the message
+            sendMessage(input);
+            
+//            // Add user tag in front of input
+//            input = "<Me> " + input;
+//        
+//            // If there is an input and output, a newline must be created in front of the input message
+//            if (log.length > 0) {
+//                input = "\n" + input;
+//            }
+//            
+//            // Add new input at the end of the log
+//            log = log + input;
+//            
+//            // Display the log in the textarea
+//            $sakai3_chatroom_log.val(log);
+//            
+//            // Empty input field
+//            $sakai3_chatroom_message.val("");
+        };
+    };
+
+    /**
+     * Check who of your contacts are online
+     * This function is executed every 20 seconds
+     */
+    var showContacts = function(response){
+
+        for (var j = 0, l = response.contacts.length; j < l; j++){
+            response.contacts[j].status = response.contacts[j]["sakai:status"];
+        }
+        
+        // Order the contacts by status, then by first name
+        response.contacts.sort(sortColumns);
+
+        // Assemble message array
+        onlineContacts = {
+            all: response.contacts
+        };        
+
+        // Remove any previous lists
+        $(".chat_list").remove();
+        
+        // Render the template
+        $sakai3_chat.after($.TemplateRenderer($sakai3_chat_template, onlineContacts));
+        
+        // Bind the message list items
+        $('.chat_li').unbind('click').bind('click', function(e, data){
+        
+            // Equal the global $selectedChatContact variable with the ID of the clicked list item (= contact.user)
+            $selectedChatContact = e.currentTarget.id;
+        });
+    };
+
+    /**
+     * Check who of your friends are online
+     * This function is executed every 5 seconds
+     */
+    var checkOnline = function(){
+        // Receive your online friends through an Ajax request
+        $.ajax({
+            url: sakai.config.URL.PRESENCE_CONTACTS_SERVICE,
+            cache: false,
+            success: function(data){
+                showContacts(data);
+                setTimeout(checkOnline, 5000);
+                goBackToLogin = true;
+            }
+        });
+    };
 
 
     //////////
@@ -30,7 +210,7 @@ $(function(){
      * Add a zero in front of the number if it is lower than 10
      * @param {Integer} number Number to pad
      */
-    function pad2(number) {
+    function pad2(number){
         return (number < 10 ? '0' : '') + number;
     }
 
@@ -92,9 +272,6 @@ $(function(){
 
                 // Return the location of the image
                 returnvalue = constructProfilePicture(data.results[0]);
-                //sakai.api.User.loadMeData(function(success, data){
-                    //returnvalue = constructProfilePicture(sakai.data.me.profile);
-                //});
             },
             error: function(){
                 console.log("getUserImage: Could not find the user");
@@ -105,10 +282,10 @@ $(function(){
         });
     };
 
+
     /////////////////////
     // Recent Messages //
     /////////////////////
-
 
     /**
      * Show the recent messages
@@ -182,21 +359,21 @@ $(function(){
         }
     };
 
-   /**
-    * Load the recent messages for the current user
-    * @param {Object|Boolean} response
-    * The response that the server has send.
-    * If the response is false, it means we were not able to connect to the server
-    */
+    /**
+     * Load the recent messages for the current user
+     * @param {Object|Boolean} response
+     * The response that the server has send.
+     * If the response is false, it means we were not able to connect to the server
+     */
     var loadRecentMessages = function(response){
 
         // Render the recent messages for the current user.
         renderRecentMessages(response);
     };
 
-   /**
-    * Send a request to the message service.to get your recent messages
-    */
+    /**
+     * Send a request to the message service.to get your recent messages
+     */
     var getRecentMessages = function(){
 
         // Set a params object to set which params should be passed into the request
@@ -224,7 +401,7 @@ $(function(){
     /////////////
     // Profile //
     /////////////
-    
+
     /**
      * Save the values from the input fields
      */
@@ -234,7 +411,7 @@ $(function(){
         tosend["lastName"] = $("#sakai3_profile_lastname").val();
         tosend["email"] = $("#sakai3_profile_email").val();
         tosend["_charset_"] = "utf-8";
-               
+
         $.ajax({
             url: sakai.data.me.profile["jcr:path"],
             type: "POST",
@@ -248,30 +425,54 @@ $(function(){
         });
     };
 
-    var getEditProfile = function(){     
-        sakai.api.User.loadMeData(function(success, data){          
+    /**
+     * Get the values which can be edited, and place them in the input fields
+     */
+    var getEditProfile = function(){
+        sakai.api.User.loadMeData(function(success, data){
             $("#sakai3_profile_firstname").val(data.profile.firstName);
             $("#sakai3_profile_lastname").val(data.profile.lastName);
             $("#sakai3_profile_email").val(data.profile.email);
         });
     };
-    
-    var getProfile = function(){     
+
+    /**
+     * Get all information from the profile and render the trimpath template
+     */
+    var getProfile = function(){
         sakai.api.User.loadMeData(function(success, data){
             var profile = data.profile;
             profile.aboutme = $.parseJSON(data.profile.aboutme);
             profile.basic = $.parseJSON(data.profile.basic);
             profile.contactinfo = $.parseJSON(data.profile.contactinfo);
-            //profile.picture = "/_user" + profile.path + "/public/profile/" + $.parseJSON(data.profile.picture);
-            
+            profile.picture = constructProfilePicture(profile);
+
+            // If no data is abailable (null), TrimPath will crash over it
+            // This prevents this from happening
+            if (!profile.about) {
+                profile.about = "";
+            }
+
+            if (!profile.basic) {
+                profile.basic = "";
+            }
+
+            if (!profile.contactinfo) {
+                profile.contactinfo = "";
+            }
+
+            if (!profile.picture) {
+                profile.picture = "";
+            }
+
             // Put profile in array
             var profileArray = {
                 p: profile
             };
-            
+
             // Remove any previous lists
             $(".profile_list").remove();
-            
+
             // Render template
             $sakai3_profile.after($.TemplateRenderer($sakai3_profile_template, profileArray));
         });
@@ -281,6 +482,22 @@ $(function(){
     /////////////
     // Sign in //
     /////////////
+
+    /**
+     * Check if the user is still signed in
+     * If not: redirect to signin page
+     */
+    var getSignedIn = function(callback){
+        sakai.api.User.loadMeData(function(success, data){
+
+            if (sakai.data.me.user.userid){
+                return callback(true);
+            } else {
+                return callback(false);
+            }
+
+        });
+    };
 
     /**
      * Check if the user signed in successfully
@@ -300,9 +517,34 @@ $(function(){
     };
 
     /**
+     * Sign out the current user
+     */
+    var performSignOut = function(){
+        /*
+         * Will do a POST request to the logout service, which will cause the
+         * session to be destroyed. After this, we will redirect again to the
+         * login page. If the request fails, this is probably because of the fact
+         * that there is no current session. We can then just redirect to the login
+         * page again without notifying the user.
+         */
+        $.ajax({
+            url: sakai.config.URL.LOGOUT_SERVICE,
+            type: "POST",
+            complete: function(){
+                console.log("logged out");
+                jQt.goTo("#signin", "slide", true);
+            },
+            data: {
+                "sakaiauth:logout": "1",
+                "_charset_": "utf-8"
+            }
+        });
+    };
+
+    /**
      * Sign in based on the username and password input
      */
-    var performSignin = function(){
+    var performSignIn = function(){
         var data = {
             "sakaiauth:login": 1,
             "sakaiauth:un": $sakai3_username.val(),
@@ -333,7 +575,7 @@ $(function(){
      * Enable or disable the Sign in button, based on username and password input
      */
     var enableDisableSignin = function(){
-        if ($sakai3_username.val() && $sakai3_password.val()) {
+        if ($sakai3_username.val() && $sakai3_password.val()){
             $sakai3_signin_button.removeClass("disabledButton");
         } else {
             $sakai3_signin_button.addClass("disabledButton");
@@ -349,21 +591,31 @@ $(function(){
     $sakai3_username.bind("keydown", enableDisableSignin);
 
     $sakai3_signin.submit(function(){
-        performSignin();
+        performSignIn();
     });
-    
+
+    $sakai3_signout.click(function(e){
+        performSignOut();
+    });
+
     $sakai3_editprofile.submit(function(){
         performProfileSave();
     });
+    
+    $sakai3_chatroom_form.submit(function(){
+        performChatSubmit();
+    });
 
     // Bind the end of an inimation in the body (= new page shown)
-    $('body').bind('pageAnimationEnd', function(e, data){
+    $sakai3_body.bind('pageAnimationEnd', function(e, data){
 
         // Only work with the "in" direction, otherwise the code will be executed twice
-        if (data.direction == "in") {
+        if (data.direction == "in"){
 
             // Execute code dependent on the ID of the div with "current" class
-            switch ($(".current")[0].id) {
+            switch ($(".current")[0].id){
+                case "signin":
+                    break;
                 case "mysakai":
                     $sakai3_password.val("");
                     $("#login_fail").hide();
@@ -380,8 +632,38 @@ $(function(){
                 case "message":
                     showRecentMessage(false, false);
                     break;
+                case "chat":
+                
+                    // Only start checking who's online when it isn't al ready
+                    if (!checkingOnline) {
+                        checkingOnline = true;
+                        checkOnline();
+                    }
+                    break;
                 default:
             }
         }
     });
+
+
+    //////////
+    // Init //
+    //////////
+
+    /**
+     * This function is called each time the page is opened or refreshed
+     */
+    var init = function(){
+
+        // Determine whether the user is signed in or not
+        getSignedIn(function(signedIn){
+
+            // If the user is signed in, go to the My Sakai page
+            if (signedIn) {
+                jQt.goTo("#mysakai");
+            }
+        });
+    };
+
+    init();
 });
