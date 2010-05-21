@@ -19,10 +19,10 @@ $(function(){
     var $sakai3_profile_template = $("#sakai3_profile_template");
     var $sakai3_editprofile = $("#sakai3_editprofile");
     var $login_fail = $("#login_fail");
-    
+
     var $sakai3_chat = $("#sakai3_chat");
     var $sakai3_chat_template = $("#sakai3_chat_template");
-    
+
     var $sakai3_chatroom_form = $("#sakai3_chatroom_form");
     var $sakai3_chatroom_log = $("#sakai3_chatroom_log");
     var $sakai3_chatroom_message = $("#sakai3_chatroom_message");
@@ -31,9 +31,9 @@ $(function(){
     var $selectedChatContact;
     var checkingOnline = false;
     var messageArray;
-    
-    
-    
+
+
+
 //    /**
 //     * Scroll to the bottom of an element
 //     * @param {Object} el The element that needs to be scrolled down
@@ -42,61 +42,159 @@ $(function(){
 //        el.attr("scrollTop", el.attr("scrollHeight"));
 //    };
 
-
-
-
-
-
-var sendMessage = function(message){
-
-    var data = {
-        "sakai:type": "chat",
-        "sakai:sendstate": "pending",
-        "sakai:messagebox": "outbox",
-        "sakai:to": "chat:" + $selectedChatContact,
-        "sakai:from": sakai.data.me.user.userid,
-        "sakai:subject": "",
-        "sakai:body": message,
-        "sakai:category": "chat",
-        "_charset_": "utf-8"
+    /**
+     * Scroll to the bottom of an element
+     * @param {Object} el The element that needs to be scrolled down
+     */
+    var scroll_to_bottom = function(el){
+        //el.attr("scrollTop", el.attr("scrollHeight"));
     };
-    
-    $.ajax({
-        url: "/_user" + sakai.data.me.profile.path + "/message.create.html",
-        type: "POST",
-        success: function(data){
-        
-            // We evaluate the response after sending
-            // the message and store it in an object
-            var response = data; // parse to json?
-            
-            // Add the id to the send messages object
-            // We need to do this because otherwise the user who
-            // sends the message, will see it 2 times
-            //addToSendMessages(response.id);
-        },
-        error: function(xhr, textStatus, thrownError){
-            alert("An error has occured when sending the message.");
-        },
-        data: data
-    });
-}
-    
-    
-    
-    
-    
+
+    /**
+     * Add a chat message
+     * @param {Object} el Element where the element needs to be attached to
+     * @param {Object} message Message that needs to be appended
+     */
+    var addChatMessage = function(el, message){
+//        if (el.length > 0) {
+//            el.append(renderChatMessage(message));
+//            checkHeight(el, chatWithContentNooverflowClass, chatWithContentOverflowClass);
+//            scroll_to_bottom(el);
+//        }
+        console.log(message);
+    };
+
+    /**
+     * Load the chat windows
+     * @param {Boolean} initial
+     *  true: Load the initial chat (receive all the messages)
+     *  false: It's not an initial load
+     */
+    loadChatTextInitial = function(){
+
+        // Check if the current user is anonymous.
+        // If this is the case, exit this function
+        if (sakai.data.me.user.anon) {
+            return;
+        }
+
+        // Onlineusers is an array containing the uids that are in the specialjson.items
+        var onlineUsers = [];
+        onlineUsers[0] = "user1";
+
+        // Combine all the online users with a comma
+        var tosend = onlineUsers.join(",");
+
+        // Send and Ajax request to get the chat messages
+        $.ajax({
+            url: sakai.config.URL.CHAT_GET_SERVICE.replace(/__KIND__/, "unread"),
+            data: {
+                "_from": tosend,
+                "items": 1000,
+                "t": pulltime
+            },
+            cache: false,
+            //sendToLoginOnFail: true,
+            success: function(data){
+                var json = data;
+
+                // Check if there are any messages inside the JSON object
+                if (json.results) {
+
+                    var njson = {};
+                    for (var i = json.results.length - 1; i >= 0; i--) {
+                        var message = json.results[i];
+                        var user = "";
+                        if (message.userFrom[0].userid === sakai.data.me.user.userid) {
+                            user = message.userTo[0].userid;
+                        } else {
+                            user = message.userFrom[0].userid;
+                        }
+                        var isIncluded = true;
+                        if (true) {
+                            var isIn = false;
+                            for (var l = 0; l < specialjson.items.length; l++) {
+                                if (specialjson.items[l].userid === user) {
+                                    isIn = true;
+                                }
+                            }
+                            if (!isIn) {
+                                isIncluded = false;
+                            }
+                        }
+                        if (isIncluded) {
+                            if (!njson[user]) {
+                                njson[user] = {};
+                                njson[user].messages = [];
+                            }
+                            njson[user].messages[njson[user].messages.length] = message;
+                        }
+                    }
+
+                    for (var k in njson) {
+
+                        // We need to add the hasOwnProperty to pass to JSLint and it is also a security issue
+                        if (njson.hasOwnProperty(k)) {
+                            var isMessageFromOtherUser = false;
+
+
+                            // We check if the message is in the sendMessages array
+                            if ($.inArray(njson[k].messages[0].id, sendMessages) !== -1) {
+                                continue;
+                            }
+
+                            //var el = $(chatWith + "_" + k + "_content");
+                            //var chatwithusername = parseName(k, njson[k].messages[0].userFrom[0].firstName, njson[k].messages[0].userFrom[0].lastName);
+
+                            // Create a message object
+                            var chatmessage = {};
+
+                            for (var j = 0; j < njson[k].messages.length; j++) {
+                                // Check if the message is from the current user or from the friend you are talking to
+                                if (sakai.data.me.user.userid == njson[k].messages[j].userFrom[0].userid) {
+                                    isMessageFromOtherUser = false;
+                                } else {
+                                    isMessageFromOtherUser = true;
+                                }
+                                // Create a chat message and add it
+                                //chatmessage = createChatMessage(isMessageFromOtherUser, chatwithusername, njson[k].messages[j]["sakai:body"], njson[k].messages[j]["sakai:created"]);
+                                addChatMessage(el, chatmessage);
+                            }
+                        }
+                    }
+                }
+            },
+
+            error: function(xhr, textStatus, thrownError){
+                console.log("error");
+            }
+        });
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     ////////////////
     // Array sort //
     ////////////////
-    
+
     /**
      * Sort contacts by status, then by first name
      * @param {Object} a First contact to sort
      * @param {Object} b Second contact to sort
      */
     var sortColumns = function(a, b){
-        
+
         // Status variables
         var sA = a.status;
         var sB = b.status;
@@ -104,14 +202,14 @@ var sendMessage = function(message){
         // First name variables
         var nA = a.profile.firstName;
         var nB = b.profile.firstName;
-        
+
         // If the status is the same
         if (sA == sB) {
-            
+
             // Sort by first name (ascending)
             return ((nA < nB) ? -1 : ((nA > nB) ? 1 : 0));
         } else {
-            
+
             // Sort by status (descending, so online users stand above the offline ones)
             return ((sA > sB) ? -1 : ((sA < sB) ? 1 : 0));
         }
@@ -121,35 +219,39 @@ var sendMessage = function(message){
     //////////
     // Chat //
     //////////
-    
-    var performChatSubmit = function(){
-       
-        // Input and log variables to keep the code clean
-        var input = $sakai3_chatroom_message.val();
-        var log = $sakai3_chatroom_log.val();
 
-        if (input.length > 0) {
-            
-            // Send the message
-            sendMessage(input);
-            
-//            // Add user tag in front of input
-//            input = "<Me> " + input;
-//        
-//            // If there is an input and output, a newline must be created in front of the input message
-//            if (log.length > 0) {
-//                input = "\n" + input;
-//            }
-//            
-//            // Add new input at the end of the log
-//            log = log + input;
-//            
-//            // Display the log in the textarea
-//            $sakai3_chatroom_log.val(log);
-//            
-//            // Empty input field
-//            $sakai3_chatroom_message.val("");
+    var sendMessage = function(message){
+
+        var data = {
+            "sakai:type": "chat",
+            "sakai:sendstate": "pending",
+            "sakai:messagebox": "outbox",
+            "sakai:to": "chat:" + $selectedChatContact,
+            "sakai:from": "user2",  //sakai.data.me.user.userid,
+            "sakai:subject": "",
+            "sakai:body": message,
+            "sakai:category": "chat",
+            "_charset_": "utf-8"
         };
+
+        $.ajax({
+            url: "/_user" + sakai.data.me.profile.path + "/message.create.html",
+            type: "POST",
+            success: function(data){
+
+                // We evaluate the response after sending
+                // the message and store it in an object
+                var response = data;
+                // Add the id to the send messages object
+                // We need to do this because otherwise the user who
+                // sends the message, will see it 2 times
+                //addToSendMessages(response.id);
+            },
+            error: function(xhr, textStatus, thrownError){
+                console.log("An error occured while sending the message.");
+            },
+            data: data
+        });
     };
 
     /**
@@ -161,27 +263,105 @@ var sendMessage = function(message){
         for (var j = 0, l = response.contacts.length; j < l; j++){
             response.contacts[j].status = response.contacts[j]["sakai:status"];
         }
-        
+
         // Order the contacts by status, then by first name
         response.contacts.sort(sortColumns);
 
         // Assemble message array
         onlineContacts = {
             all: response.contacts
-        };        
+        };
 
         // Remove any previous lists
         $(".chat_list").remove();
-        
+
         // Render the template
         $sakai3_chat.after($.TemplateRenderer($sakai3_chat_template, onlineContacts));
-        
+
         // Bind the message list items
         $('.chat_li').unbind('click').bind('click', function(e, data){
-        
+
             // Equal the global $selectedChatContact variable with the ID of the clicked list item (= contact.user)
             $selectedChatContact = e.currentTarget.id;
         });
+    };
+
+    var time = [];
+    /**
+     * Check if there are any new chat messages for the current user
+     * A response could look like this:
+     * {
+     *    update: true,
+     *    time: 1255947464940
+     * }
+     * The update variable will be true
+     */
+    var checkNewMessages = function(){
+
+        // Create a data object
+        var data = {};
+
+        // Check if the time is not 0, if so set the current time
+        //if (time.length !== 0) {
+        //    data.t = time;
+        //}
+
+        // Send an Ajax request to check if there are any new messages, but only if there are contacts online
+        //if ((onlineFriends) && (onlineFriends.length > 0)) {
+            $.ajax({
+                url: "/_user" + sakai.data.me.profile.path + "/message.chatupdate.json",
+                data: data,
+                success: function(data){
+
+                    // Parse the JSON data and get the time
+                    time = data.time;
+                    pulltime = data.pulltime;
+
+                    if (data.update) {
+                        //sakai.navigationchat.loadChatTextInitial(false);
+                        console.log(data);
+                        loadChatTextInitial();
+                    } else {
+                        setTimeout(checkNewMessages, 5000);
+                    }
+                }
+            });
+        //}
+    };
+
+    var performChatSubmit = function(){
+
+        // Input and log variables to keep the code clean
+        var input = $sakai3_chatroom_message.val();
+        var log = $sakai3_chatroom_log.val();
+
+        if (input.length > 0) {
+
+            // Send the message
+            sendMessage(input);
+
+            // Empty input field
+            $sakai3_chatroom_message.val("");
+
+            setTimeout(checkNewMessages, 5000);
+
+//            // Add user tag in front of input
+//            input = "<Me> " + input;
+//
+//            // If there is an input and output, a newline must be created in front of the input message
+//            if (log.length > 0) {
+//                input = "\n" + input;
+//            }
+//
+//            // Add new input at the end of the log
+//            log = log + input;
+//
+//            // Display the log in the textarea
+//            $sakai3_chatroom_log.val(log);
+//
+//            // Empty input field
+//            $sakai3_chatroom_message.val("");
+        }
     };
 
     /**
@@ -531,7 +711,6 @@ var sendMessage = function(message){
             url: sakai.config.URL.LOGOUT_SERVICE,
             type: "POST",
             complete: function(){
-                console.log("logged out");
                 jQt.goTo("#signin", "slide", true);
             },
             data: {
@@ -601,7 +780,7 @@ var sendMessage = function(message){
     $sakai3_editprofile.submit(function(){
         performProfileSave();
     });
-    
+
     $sakai3_chatroom_form.submit(function(){
         performChatSubmit();
     });
@@ -633,7 +812,7 @@ var sendMessage = function(message){
                     showRecentMessage(false, false);
                     break;
                 case "chat":
-                
+
                     // Only start checking who's online when it isn't al ready
                     if (!checkingOnline) {
                         checkingOnline = true;
