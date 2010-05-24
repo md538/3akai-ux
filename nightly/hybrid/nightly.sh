@@ -6,7 +6,7 @@
 
 export K2_TAG="0.4"
 export S2_TAG="tags/sakai-2.7.0-b06"
-export K2_ARTIFACT="org.sakaiproject.nakamura.app-0.4-SNAPSHOT.jar"
+export K2_ARTIFACT="org.sakaiproject.nakamura.app-0.5-SNAPSHOT.jar"
 
 # Treat unset variables as an error when performing parameter expansion
 set -o nounset
@@ -76,7 +76,7 @@ then
 else
     echo "Building nakamura@$K2_TAG..."
     git clone -q git://github.com/ieb/open-experiments.git
-    cd open-experiments/slingtests/osgikernel/
+    cd open-experiments
     git checkout -b $K2_TAG
     mvn -B -e clean install -Dmaven.test.skip=true
     date > .lastbuild
@@ -133,7 +133,7 @@ else
     echo "login.k2.authentication.vaildateUrl=http://localhost:8008/var/cluster/user.cookie.json?c=" >> sakai2-demo/sakai/sakai.properties
     # declare shared secret for trusted login from K2
     echo "org.sakaiproject.util.TrustedLoginFilter.sharedSecret=e2KS54H35j6vS5Z38nK40" >> sakai2-demo/sakai/sakai.properties
-    echo "org.sakaiproject.util.TrustedLoginFilter.safeHosts=localhost" >> sakai2-demo/sakai/sakai.properties
+    echo "org.sakaiproject.util.TrustedLoginFilter.safeHosts=localhost;127.0.0.1" >> sakai2-demo/sakai/sakai.properties
     date > $BUILD_DIR/sakai/.lastbuild
 fi
 

@@ -1,3 +1,19 @@
+#jqt .chat_list li .chat_list_text {
+    padding-left:9px;
+}
+
+#jqt .chat_list li img {
+    padding-top:3px;
+}
+
+#jqt .chat_list li.arrow a {
+    padding-left:35px;
+}
+
+#jqt ul li textarea {
+    height:270px;
+}
+
 #jqt ul.signin li {
     width:100% !important;
 }
@@ -65,8 +81,4 @@
    Taken from http://code.google.com/p/jqtouch/issues/detail?id=127 */
 #jqt ul.edgetoedge, #jqt ul.edgetoedge a.active {
     -webkit-border-radius:0 !important;
-}
-
-#jqt ul li textarea {
-    height:270px;
 }

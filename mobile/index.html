@@ -224,20 +224,25 @@
                             <li class="arrow">
                             <img src="images/bullet_green.png" />
                             <a href="#chatroom" class="chat_li" id="${contact.user}">
-                        {else if contact.status == "offline"}
+                        {else}
                             <li>
-                            <img src="images/bullet_red.png" />
+                            <img src="images/bullet_red.png" /><span class="chat_list_text">
                         {/if}
                         
                         ${contact.profile.firstName} ${contact.profile.lastName}
                         
                         {if contact.status == "online"}
                             </a>
+                        {else}
+                            </span>
                         {/if}
                     </li>                   
                 {/for}
-                {if all.length == 0}
-                    <li>You have no contacts.</li>
+                {if !loaded}
+                    <li>Loading...</li>
+                {/if}
+                {if all.length == 0 && loaded}
+                    <li>You have no contacts</li>
                 {/if}
             </ul>
         --></div>

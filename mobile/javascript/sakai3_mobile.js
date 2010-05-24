@@ -34,14 +34,6 @@ $(function(){
 
 
 
-//    /**
-//     * Scroll to the bottom of an element
-//     * @param {Object} el The element that needs to be scrolled down
-//     */
-//    var scroll_to_bottom = function(el){
-//        el.attr("scrollTop", el.attr("scrollHeight"));
-//    };
-
     /**
      * Scroll to the bottom of an element
      * @param {Object} el The element that needs to be scrolled down
@@ -269,7 +261,8 @@ $(function(){
 
         // Assemble message array
         onlineContacts = {
-            all: response.contacts
+            all: response.contacts,
+            loaded: true
         };
 
         // Remove any previous lists
@@ -773,7 +766,7 @@ $(function(){
         performSignIn();
     });
 
-    $sakai3_signout.click(function(e){
+    $sakai3_signout.click(function(){
         performSignOut();
     });
 
@@ -794,6 +787,11 @@ $(function(){
             // Execute code dependent on the ID of the div with "current" class
             switch ($(".current")[0].id){
                 case "signin":
+
+                    // Remove any previous lists
+                    $(".chat_list").remove();
+                    $(".messages_list").remove();
+                    $(".profile_list").remove();
                     break;
                 case "mysakai":
                     $sakai3_password.val("");
