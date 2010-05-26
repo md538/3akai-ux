@@ -1,3 +1,15 @@
+#sakai3mobile #notification_container {
+    background-image: none !important;
+    background-color: #B2EAFF;
+    bottom:10px;
+    font-family:"Helvetica Neue",Helvetica;
+    margin-left:10px;
+    margin-right:10px;
+    padding:5px 0 5px 10px;
+    position: absolute;
+    width:90%;
+}
+
 #jqt .chat_list li .chat_list_text {
     padding-left:9px;
 }
@@ -11,7 +23,7 @@
 }
 
 #jqt ul li textarea {
-    height:270px;
+    height:180px;
 }
 
 #jqt ul.signin li {

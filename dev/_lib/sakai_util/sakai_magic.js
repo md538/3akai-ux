@@ -363,9 +363,11 @@ sakai.api.i18n.init = function(){
      * and load them into the document
      */
     var finishI18N = function(){
-        $i18nable.show();
-        sdata.container.setReadyToLoad(true);
-        sdata.widgets.WidgetLoader.insertWidgets(null, false);
+        if (!this.jQt) {
+            $i18nable.show();
+            sdata.container.setReadyToLoad(true);
+            sdata.widgets.WidgetLoader.insertWidgets(null, false);
+        }
     };
 
     /**

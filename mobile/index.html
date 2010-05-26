@@ -5,9 +5,9 @@
 
         <style type="text/css" media="screen">@import "jqtouch/jqtouch.css";</style>
         <style type="text/css" media="screen">@import "themes/apple/theme.css";</style>
-        
+
         <link rel="stylesheet" href="css/sakai.mobile.css" type="text/css" media="screen" charset="utf-8">
-        
+
         <script src="jqtouch/jquery-1.4.2.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
 
@@ -26,11 +26,11 @@
         <script src="../dev/_configuration/config.js" type="text/javascript" charset="utf-8"></script>
         <script src="../dev/_lib/sakai_util/trimpath.template.js" type="text/javascript" charset="utf-8"></script>
         <script src="../dev/_lib/sakai_util/sakai_magic.js" type="text/javascript" charset="utf-8"></script>
+
         <title>Sakai3 mobile</title>
     </head>
     <body id="sakai3mobile">
         <div id="jqt">
-            
             <!-- SIGN IN -->
             <div id="signin" class="current">
                 <div class="toolbar">
@@ -55,7 +55,7 @@
                     </ul>
                 </form>
             </div>
-            
+
             <!-- MY SAKAI -->
             <div id="mysakai">
                 <div class="toolbar">
@@ -67,8 +67,9 @@
                     <li class="arrow"><a href="#messages">Messages</a></li>
                     <li class="arrow"><a href="#chat">Chat</a></li>
                 </ul>
+
             </div>
-            
+
             <!-- PROFILE -->
             <div id="profile">
                 <div class="toolbar">
@@ -80,7 +81,7 @@
                     <!-- sakai3_profile_template -->
                 </div>
             </div>
-            
+
             <!-- PROFILE EDIT -->
             <div id="profile_edit">
                 <div class="toolbar">
@@ -98,7 +99,7 @@
                     </ul>
                 </form>
             </div>
-            
+
             <!-- MESSAGES -->
             <div id="messages">
                 <div class="toolbar">
@@ -120,7 +121,7 @@
                     <!-- sakai3_message_template -->
                 </div>
             </div>
-            
+
             <!-- CHAT -->
             <div id="chat">
                 <div class="toolbar">
@@ -131,31 +132,28 @@
                     <!-- sakai3_chat_template -->
                 </div>
             </div>
-            
+
             <!-- CHAT ROOM -->
             <div id="chatroom">
                 <div class="toolbar">
                     <h1>Chat Room</h1>
                     <a class="back" href="#chat">Back</a>
                 </div>
-                <div id="sakai3_chatroom">
-                    <!-- sakai3_chatroom_template -->
-                </div>
-                <div id="temp">
-                    <form id="sakai3_chatroom_form" action="javascript:;" method="POST" class="form">
-                    <ul>
-                        <li><textarea id="sakai3_chatroom_log" readonly="readonly"></textarea></li>
-                        <li><input id="sakai3_chatroom_message" type="text" placeholder="Message" /></li>
-                        <li><a class="submit" href="#">Send</a></li>
-                    </ul>
-                    </form>
-                </div>
+                <form id="sakai3_chatroom_form" action="javascript:;" method="POST" class="form">
+                <ul>
+                    <li><textarea id="sakai3_chatroom_log" readonly="readonly"></textarea></li>
+                    <li><input id="sakai3_chatroom_message" type="text" placeholder="Message" /></li>
+                    <li><a class="submit" href="#">Send</a></li>
+                </ul>
+                </form>
             </div>
         </div>
-        
+
+        <div id="notification_container" style="display:none;"><!-- notification --></div>
+
         <!-- PROFILE TEMPLATE -->
         <div id="sakai3_profile_template"><!--
-            <ul class="rounded profile_list">  
+            <ul class="rounded profile_list">
                 {if p}
                     {if p.picture}<span class="message_image"><img src="${p.picture}" alt="User picture" height="45", width="45"/></span>{/if}
                     <li><h1>Basic Info</h1></li>
@@ -167,7 +165,7 @@
                     {if p.basic.unicollege}<li><span class="crop">College: ${p.basic.unicollege}</span></li>{/if}
                     {if p.basic.birthday}<li><span class="crop">Date of birth: ${p.basic.birthday}</span></li>{/if}
                 {/if}
-                
+
                 {if p.aboutme}
                     <li><h1>About Me</h1></li>
                     {if p.aboutme.aboutme}<li><span>About me: ${p.aboutme.aboutme}</span></li>{/if}
@@ -175,7 +173,7 @@
                     {if p.aboutme.personalinterests}<li><span>Personal Interests: ${p.aboutme.personalinterests}</span></li>{/if}
                     {if p.aboutme.hobbies}<li><span>Hobbies: ${p.aboutme.hobbies}</span></li>{/if}
                 {/if}
-                
+
                 {if p}
                     <li><h1>University Contact Info</h1></li>
                     {if p.email}<li><span class="crop">Email: ${p.email}</span></li>{/if}
@@ -183,7 +181,7 @@
                     {if p.contactinfo.unimobile}<li><span class="crop">Mobile: ${p.contactinfo.unimobile}</span></li>{/if}
                     {if p.contactinfo.uniaddress}<li><span>Address: ${p.contactinfo.uniaddress}</span></li>{/if}
                 {/if}
-                
+
                 {if p.contactinfo}
                     <li><h1>Home Contact Info</h1></li>
                     {if p.contactinfo.homeemail}<li><span class="crop">Email: ${p.contactinfo.homeemail}</span></li>{/if}
@@ -205,7 +203,7 @@
             {/for}
             </ul>
         --></div>
-        
+
         <!-- MESSAGE TEMPLATE -->
         <div id="sakai3_message_template"><!--
             <ul class="rounded">
@@ -215,7 +213,7 @@
                 <li>${message.all.body}</li>
             </ul>
         --></div>
-        
+
         <!-- CHAT TEMPLATE -->
         <div id="sakai3_chat_template"><!--
             <ul class="rounded chat_list">
@@ -228,15 +226,15 @@
                             <li>
                             <img src="images/bullet_red.png" /><span class="chat_list_text">
                         {/if}
-                        
+
                         ${contact.profile.firstName} ${contact.profile.lastName}
-                        
+
                         {if contact.status == "online"}
                             </a>
                         {else}
                             </span>
                         {/if}
-                    </li>                   
+                    </li>
                 {/for}
                 {if !loaded}
                     <li>Loading...</li>
