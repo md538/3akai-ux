@@ -24,19 +24,54 @@ var sakai = sakai || {};
 sakai.logout = function(){
 
     /*
-     * Will do a POST request to the logout service, which will cause the
-     * session to be destroyed. After this, we will redirect again to the
-     * login page. If the request fails, this is probably because of the fact
-     * that there is no current session. We can then just redirect to the login
-     * page again without notifying the user.
+     * Array to store the data for the batch Ajax POST.
+     * Each object in this array consists out of
+     *     - the config service URL
+     *     - the used Ajax method
+     *     - the parameters for the service
+     */
+    var data = [];
+
+    /*
+     * POST request to the presence service,
+     * which will change the user status to offline.
+     */
+    data.push({
+        "url": sakai.config.URL.PRESENCE_SERVICE,
+        "method": "POST",
+        "parameters": {
+            "sakai:status": "offline",
+            "_charset_": "utf-8"
+        }
+    });
+
+    /*
+     * POST request to the logout service,
+     * which will destroy the session.
+     */
+    data.push({
+        "url": sakai.config.URL.LOGOUT_SERVICE,
+        "method": "POST",
+        "parameters": {
+            "sakaiauth:logout": "1",
+            "_charset_": "utf-8"
+        }
+    });
+
+    /*
+     * The batch Ajax post. Redirect to the login page on success.
+     * If the request fails, it is probably because there is no current session.
+     * In that case we can redirect to the login page without notifying the user.
      */
     $.ajax({
-        url: sakai.config.URL.LOGOUT_SERVICE,
+        url: sakai.config.URL.BATCH,
         type: "POST",
-        complete: function(){
-            window.location = sakai.config.URL.GATEWAY_URL;
+        data: {
+            requests: $.toJSON(data)
         },
-        data: {"sakaiauth:logout":"1","_charset_":"utf-8"}
+        success: function(){
+            window.location = sakai.config.URL.GATEWAY_URL;
+        }
     });
 
 };
