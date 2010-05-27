@@ -119,10 +119,6 @@ $(function(){
      */
     var loadChatMessages = function(){
 
-        // Clear the textarea
-        // This is required because future additions are just appended
-        $sakai3_chatroom_log.val("");
-
         // Display the log in the textarea
         $sakai3_chatroom_log.val(chatlogs[selectedChatContact]);
 
@@ -139,15 +135,15 @@ $(function(){
     var addChatMessage = function(contact, message){
 
         // If the chatlog doesn't exist, a new empty one is made to prevent errors later on
-        if (! chatlogs[contact]) {
+        if (! chatlogs[contact]){
             chatlogs[contact] = "";
         }
 
-        // The log variable
+        // This variable holds the log from before the new message arrived
         var log = chatlogs[contact];
 
         // Add a newline in front of the new message when the log isn't empty
-        if (log.length > 0) {
+        if (log.length > 0){
             message = "\n" + message;
         }
 
@@ -157,7 +153,8 @@ $(function(){
         // Save log in the chatlogs array for the user who sent it
         chatlogs[contact] = log;
 
-        if (contact == selectedChatContact) {
+        // Only update the textarea if it is from the updated log is from the open conversation
+        if (contact == selectedChatContact){
             loadChatMessages();
         }
     };
@@ -180,19 +177,19 @@ $(function(){
             success: function(data){
 
                 // Run through each new item
-                for (var j = 0; j < data.results.length; j++) {
-                    var from = data.results[j]["sakai:from"];
+                for (var j = 0; j < data.results.length; j++){
+
+                    // Place the sender and receiver in variables to make code cleaner
+                    var from = data.results[j].userFrom[0].userid;
+                    var to = data.results[j].userTo[0].userid;
 
                     // Change the name of the sender if it equals me
-                    if (from == sakai.data.me.user.userid) {
-                        from = sakai.data.me.user.userid + " (me)";
-                    }
-
                     // Get the username of the other contact
-                    if (data.results[j].userFrom[0].userid === sakai.data.me.user.userid) {
-                        contact = data.results[j].userTo[0].userid;
+                    if (from === sakai.data.me.user.userid){
+                        from = from + " (me)";
+                        contact = to;
                     } else {
-                        contact = data.results[j].userFrom[0].userid;
+                        contact = from;
                     }
 
                     // Add a timestamp
@@ -268,7 +265,7 @@ $(function(){
 
             // Compare the status with the one stored in the array
             // If it differs, the user either joined or left
-            if(contacts[response.contacts[j].user] != response.contacts[j].status) {
+            if(contacts[response.contacts[j].user] != response.contacts[j].status){
 
                 // Update the array of statuses
                 contacts[response.contacts[j].user] = response.contacts[j].status;
@@ -279,7 +276,7 @@ $(function(){
                 // Display a notification if a user logged in
                 // Also add the username in the notification class, it is required to
                 // determine what user it represents when the notification is clicked
-                if (response.contacts[j].status == "online" && !hideNotifications) {
+                if (response.contacts[j].status == "online" && !hideNotifications){
                     $("#notification_container").removeClass().addClass(response.contacts[j].user);
                     $("#notification_container").html(response.contacts[j].user + " has logged in.");
                     $("#notification_container").show().fadeOut(5000);
@@ -287,13 +284,13 @@ $(function(){
             }
 
             // Add every online contact in the array
-            if (response.contacts[j].status == "online") {
+            if (response.contacts[j].status == "online"){
                 onlineContacts.push(response.contacts[j].user);
             }
         }
 
         // If a user joined or left
-        if (changeOccured) {
+        if (changeOccured){
 
             // Order the contacts by status, then by first name
             response.contacts.sort(sortColumns);
@@ -323,7 +320,7 @@ $(function(){
     };
 
     /**
-     * Check if there are any new chat messages for the current user
+     * Check if there are any new chat messages for any of the contacts
      * A response could look like this:
      * {
      *    update: true,
@@ -362,6 +359,12 @@ $(function(){
 
                     // Execute this function again in 3 seconds
                     setTimeout(checkNewMessages, 3000);
+                },
+                error: function(){
+                    
+                    // The user has signed off
+                    // This function will be enabled again from the moment the user signs in, and is redirected to the My Sakai page
+                    checkingMessages = false;
                 }
             });
         });
@@ -373,7 +376,7 @@ $(function(){
     var performChatSubmit = function(){
 
         // Check if there is input
-        if ($.trim($sakai3_chatroom_message.val()).length > 0) {
+        if ($.trim($sakai3_chatroom_message.val()).length > 0){
 
             // Send the message
             sendMessage($.trim($sakai3_chatroom_message.val()));
@@ -417,6 +420,12 @@ $(function(){
                 showContacts(data);
                 setTimeout(getPresence, 5000);
                 goBackToLogin = true;
+            },
+            error: function(){
+                
+                // The user is no longer active, destroy the session and go to the sign in page
+                console.log("getPresence error");
+                performSignOut();
             }
         });
     };
@@ -434,7 +443,7 @@ $(function(){
      * Will be an empty string if there is no picture
      */
     var constructProfilePicture = function(profile){
-        if (profile.picture && profile.path) {
+        if (profile.picture && profile.path){
             return "/_user" + profile.path + "/public/profile/" + $.parseJSON(profile.picture).name;
         } else {
             return "/dev/_images/person_icon.jpg";
@@ -577,7 +586,7 @@ $(function(){
             success: function(data){
                 loadRecentMessages(data);
             },
-            error: function() {
+            error: function(){
                 loadRecentMessages(false);
             }
         });
@@ -691,7 +700,7 @@ $(function(){
      * @param {Boolean} success The sign in succeeded (true) or failed (false)
      */
     var checkSigninSuccess = function(data, success){
-        if (success) {
+        if (success){
 
             // Display the My Sakai page
             jQt.goTo("#mysakai", "slide");
@@ -706,6 +715,19 @@ $(function(){
      * Sign out the current user
      */
     var performSignOut = function(){
+        var data = {
+            "sakai:status": "offline",
+            "_charset_": "utf-8"
+        };
+        $.ajax({
+            url: sakai.config.URL.PRESENCE_SERVICE,
+            type: "POST",
+            success: function(){
+                console.log("signed out")
+            },
+            data: data
+        });
+        
         /*
          * Will do a POST request to the logout service, which will cause the
          * session to be destroyed. After this, we will redirect again to the
@@ -768,6 +790,94 @@ $(function(){
     };
 
 
+    //////////////////////////////
+    // Functions on screen open //
+    //////////////////////////////
+
+    /**
+     * Execute function when the Signin screen opens
+     */
+    var onSigninOpen = function(){
+
+        // Remove any previous lists
+        $(".chat_list").remove();
+        $(".messages_list").remove();
+        $(".profile_list").remove();
+        
+        // Clear contacts list
+        contacts = [];
+
+        // Hide all notifications
+        hideNotifications = true;
+    };
+
+    /**
+     * Execute function when the My Sakai screen opens
+     */
+    var onMySakaiOpen = function(){
+        $sakai3_password.val("");
+        $("#login_fail").hide();
+
+        // Start getting and setting the presence if it isn't al ready
+        if (!checkingOnline){
+            checkingOnline = true;
+            getPresence();
+            setPresence();
+        }
+        
+        // Start checking for new messages if it isn't al ready
+        if (!checkingMessages){
+            checkingMessages = true;
+            checkNewMessages();
+        }
+    };
+
+    /**
+     * Execute function when the Profile screen opens
+     */
+    var onProfileOpen = function(){
+        getProfile();
+    };
+
+    /**
+     * Execute function when the Profile Edit screen opens
+     */
+    var onProfileEditOpen = function(){
+        getEditProfile();
+    };
+
+    /**
+     * Execute function when the Messages screen opens
+     */
+    var onMessagesOpen = function(){
+        getRecentMessages();
+    };
+
+    /**
+     * Execute function when the Message screen opens
+     */
+    var onMessageOpen = function(){
+        showRecentMessage(false, false);
+    };
+    
+    /**
+     * Execute function when the Chat screen opens
+     */
+    var onChatOpen = function(){
+
+        // Clear the textarea
+        // This is required because future additions are just appended
+        $sakai3_chatroom_log.val("");
+    }
+
+    /**
+     * Execute function when the Chatroom screen opens
+     */
+    var onChatroomOpen = function(){
+        loadChatMessages();
+    };
+
+
     ///////////////////
     // Event binding //
     ///////////////////
@@ -796,7 +906,7 @@ $(function(){
         jQt.goTo("#chatroom");
     });
 
-    // Bind the end of an inimation in the body (= new page shown)
+    // Bind the end of an animation in the body (= new page shown)
     $sakai3_body.bind('pageAnimationEnd', function(e, data){
 
         // Only work with the "in" direction, otherwise the code will be executed twice
@@ -805,47 +915,28 @@ $(function(){
             // Execute code dependent on the ID of the div with "current" class
             switch ($(".current")[0].id){
                 case "signin":
-
-                    // Remove any previous lists
-                    $(".chat_list").remove();
-                    $(".messages_list").remove();
-                    $(".profile_list").remove();
-
-                    // Hide all notifications
-                    hideNotifications = true;
+                    onSigninOpen();
                     break;
                 case "mysakai":
-                    $sakai3_password.val("");
-                    $("#login_fail").hide();
-
-                    // Only start checking who's online when it isn't checking al ready
-                    if (!checkingOnline) {
-                        checkingOnline = true;
-                        getPresence();
-                        setPresence();
-                    }
+                    onMySakaiOpen();
                     break;
                 case "profile":
-                    getProfile();
+                    onProfileOpen();
                     break;
                 case "profile_edit":
-                    getEditProfile();
+                    onProfileEditOpen();
                     break;
                 case "messages":
-                    getRecentMessages();
+                    onMessagesOpen();
                     break;
                 case "message":
-                    showRecentMessage(false, false);
+                    onMessageOpen();
                     break;
                 case "chat":
+                    onChatOpen();
                     break;
                 case "chatroom":
-                    loadChatMessages();
-                    loadChatText();
-                    if (!checkingMessages) {
-                        checkingMessages = true;
-                        checkNewMessages();
-                    }
+                    onChatroomOpen();
                     break;
                 default:
             }
