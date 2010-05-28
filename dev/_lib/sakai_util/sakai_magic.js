@@ -1485,9 +1485,8 @@ sakai.api.User.logout = function(callback) {
     });
 
     /*
-     * The batch Ajax post. Redirect to the login page on success.
+     * The batch Ajax post.
      * If the request fails, it is probably because there is no current session.
-     * In that case we can redirect to the login page without notifying the user.
      */
     $.ajax({
         url: sakai.config.URL.BATCH,
