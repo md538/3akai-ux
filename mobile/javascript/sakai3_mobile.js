@@ -44,6 +44,26 @@ $(function(){
     var time = [];
 
 
+    ///////////////////////
+    // Chat notification //
+    ///////////////////////
+    
+    /**
+     * Displays a notification message on the bottom of the screen for five seconds
+     * @param {Object} username The chat conversation where the notification links to
+     * @param {Object} message The message to display
+     */
+    function showNotification(username, message){
+    
+        // Add the username in the notification class, it is required to
+        // determine what user it represents when the notification is clicked
+        if (!hideNotifications) {
+            $("#notification_container").removeClass().addClass(username);
+            $("#notification_container").html(message);
+            $("#notification_container").show().fadeOut(5000);
+        }
+    }
+
     //////////
     // Date //
     //////////
@@ -132,12 +152,20 @@ $(function(){
      * Add a chat message
      * @param {Object} message Message that needs to be added
      */
-    var addChatMessage = function(contact, message){
+    var addChatMessage = function(contact, timestamp, from, message){
 
         // If the chatlog doesn't exist, a new empty one is made to prevent errors later on
         if (! chatlogs[contact]){
             chatlogs[contact] = "";
+            
+            // Only show a notification if it wasn't sent by Me
+            if (from != "Me") {
+                showNotification(contact, contact + " says: " + message);
+            }
         }
+        
+        // Add timestamp and sender to message
+        message = "[" + timestamp + "] <" + from + "> " + message;
 
         // This variable holds the log from before the new message arrived
         var log = chatlogs[contact];
@@ -154,7 +182,7 @@ $(function(){
         chatlogs[contact] = log;
 
         // Only update the textarea if it is from the updated log is from the open conversation
-        if (contact == selectedChatContact){
+        if (contact === selectedChatContact){
             loadChatMessages();
         }
     };
@@ -186,7 +214,7 @@ $(function(){
                     // Change the name of the sender if it equals me
                     // Get the username of the other contact
                     if (from === sakai.data.me.user.userid){
-                        from = from + " (me)";
+                        from = "Me";
                         contact = to;
                     } else {
                         contact = from;
@@ -196,8 +224,8 @@ $(function(){
                     var timestamp = sakai.api.Util.parseSakaiDate(data.results[j]["sakai:created"]);
                     timestamp = pad2(timestamp.getHours()) + ":" + pad2(timestamp.getMinutes());
 
-                    // Add the message to the log, with the timestamp and userid of the sender
-                    addChatMessage(contact, "[" + timestamp + "] <" + from + "> " + data.results[j]["sakai:body"]);
+                    // Add the message to the textarea
+                    addChatMessage(contact, timestamp, from, data.results[j]["sakai:body"]);
                 }
             },
             error: function(xhr, textStatus, thrownError){
@@ -272,14 +300,10 @@ $(function(){
 
                 // To update the HTML a render will be required
                 changeOccured = true;
-
-                // Display a notification if a user logged in
-                // Also add the username in the notification class, it is required to
-                // determine what user it represents when the notification is clicked
-                if (response.contacts[j].status == "online" && !hideNotifications){
-                    $("#notification_container").removeClass().addClass(response.contacts[j].user);
-                    $("#notification_container").html(response.contacts[j].user + " has logged in.");
-                    $("#notification_container").show().fadeOut(5000);
+                
+                // Display a notification if a user has logged in
+                if (response.contacts[j].status == "online") {
+                    showNotification(response.contacts[j].user, response.contacts[j].user + " has logged in.");
                 }
             }
 
@@ -316,6 +340,9 @@ $(function(){
 
             // No longer hide notifications (if they still were being hidden)
             hideNotifications = false;
+            
+            // Update the number of online contacts in the My Sakai menu
+            $("#chatcounter").html(onlineContacts.length);
         }
     };
 
@@ -585,6 +612,9 @@ $(function(){
             cache: false,
             success: function(data){
                 loadRecentMessages(data);
+                
+                // Update the number of online contacts in the My Sakai menu
+                $("#messagecounter").html(data.results.length);
             },
             error: function(){
                 loadRecentMessages(false);
@@ -804,8 +834,9 @@ $(function(){
         $(".messages_list").remove();
         $(".profile_list").remove();
         
-        // Clear contacts list
+        // Clear contacts list and chatlogs
         contacts = [];
+        chatlogs = [];
 
         // Hide all notifications
         hideNotifications = true;
@@ -817,6 +848,9 @@ $(function(){
     var onMySakaiOpen = function(){
         $sakai3_password.val("");
         $("#login_fail").hide();
+        
+        // Get the recent messages so the correct number is displayed
+        getRecentMessages();
 
         // Start getting and setting the presence if it isn't al ready
         if (!checkingOnline){
@@ -902,8 +936,16 @@ $(function(){
     });
 
     $("#notification_container").unbind().bind('click', function(e, data){
+        
+        // Instantly hide the notification 
+        $("#notification_container").hide();
+        
+        // Equal the selected contact with the class
         selectedChatContact = $("#notification_container").attr("class");
-        jQt.goTo("#chatroom");
+        
+        // Go to the chatroom screen
+        // The conversation with the selected chat contact will automatically be loaded
+        jQt.goTo("#chatroom", "slide");
     });
 
     // Bind the end of an animation in the body (= new page shown)

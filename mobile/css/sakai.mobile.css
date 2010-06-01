@@ -22,6 +22,10 @@
     padding-left:35px;
 }
 
+#jqt ul li small.counter {
+    margin-right:28px !important;
+}
+
 #jqt ul li textarea {
     height:180px;
 }
@@ -31,7 +35,7 @@
 }
 
 #sakai3mobile #jqt .disabledButton.active, #sakai3mobile #jqt .disabledButton:active {
-    -webkit-border-image:url(../themes/apple/img/whiteButton.png) 0 12 0 12;
+    /*-webkit-border-image:url(../themes/apple/img/whiteButton.png) 0 12 0 12;*/
 }
 
 #sakai3mobile #sakai3_logo {
@@ -50,7 +54,7 @@
 }
 
 #sakai3mobile .disabledButton {
-    opacity:0.5;
+    /*opacity:0.5;*/
 }
 
 #sakai3mobile .message_date {
