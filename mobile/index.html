@@ -140,6 +140,7 @@
                 </div>
                 <form id="sakai3_chatroom_form" action="javascript:;" method="POST" class="form">
                 <ul>
+                    <li><span id="chatcontact"></span><span id="chatbox_image"></span></li>
                     <li><textarea id="sakai3_chatroom_log" readonly="readonly"></textarea></li>
                     <li><input id="sakai3_chatroom_message" type="text" placeholder="Message" /></li>
                     <li><a class="submit" href="#">Send</a></li>
@@ -154,7 +155,7 @@
         <div id="sakai3_profile_template"><!--
             <ul class="rounded profile_list">
                 {if p}
-                    {if p.picture}<span class="message_image"><img src="${p.picture}" alt="User picture" height="45", width="45"/></span>{/if}
+                    {if p.picture}<span id="profile_image"><img src="${p.picture}" alt="User picture" height="45", width="45"/></span>{/if}
                     <li><h1>Basic Info</h1></li>
                     {if p.basic.status}<li><span class="crop">Status: ${p.basic.status}</span></li>{/if}
                     {if p.firstName}<li><span class="crop">First name: ${p.firstName}</span></li>{/if}
@@ -196,7 +197,8 @@
             <ul class="rounded messages_list">
             {for message in messages}
                 <li class="arrow"><a href="#message" class="message_li" id="${message.nr}">
-                    ${message.from}<span class="message_date">${message.created}</span><br/>
+                    From: ${message.from_firstname} ${message.from_lastname}<br/>
+                    Date: ${message.created}<br/>
                     ${message.subject}
                 </a></li>
             {/for}
@@ -206,7 +208,7 @@
         <!-- MESSAGE TEMPLATE -->
         <div id="sakai3_message_template"><!--
             <ul class="rounded">
-                <li>From: <img src='${message.image}' alt='Image from ${message.all.from}' width="20" height="20" class="message_image" /> ${message.all.from} (${message.all.from_firstname} ${message.all.from_lastname})</li>
+                <li>From: <img src='${message.image}' alt='Image from ${message.all.from}' width="30" height="30" id="message_image" />${message.all.from_firstname} ${message.all.from_lastname}</li>
                 <li>Sent: ${message.all.created}</li>
                 <li>Subject: ${message.all.subject}</li>
                 <li>${message.all.body}</li>

@@ -38,6 +38,24 @@
     /*-webkit-border-image:url(../themes/apple/img/whiteButton.png) 0 12 0 12;*/
 }
 
+#sakai3mobile #chatbox_image {
+    float:right;
+    margin-right:0px;
+    margin-top:0px;
+}
+
+#sakai3mobile #message_image {
+    float:right;
+    margin-right:0px;
+    margin-top:-3px;
+}
+
+#sakai3mobile #profile_image {
+    float:right;
+    margin-right:15px;
+    margin-top:8px;
+}
+
 #sakai3mobile #sakai3_logo {
     margin:20px auto 0;
     width:136px;
@@ -55,17 +73,6 @@
 
 #sakai3mobile .disabledButton {
     /*opacity:0.5;*/
-}
-
-#sakai3mobile .message_date {
-    float:right;
-    padding-right:15px;
-}
-
-#sakai3mobile .message_image {
-    float:right;
-    padding-right:20px;
-    padding-top:8px;
 }
 
 #sakai3mobile .profile_list li, #sakai3mobile #sakai3_chatroom_log {

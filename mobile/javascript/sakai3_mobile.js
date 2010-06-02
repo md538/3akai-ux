@@ -47,14 +47,14 @@ $(function(){
     ///////////////////////
     // Chat notification //
     ///////////////////////
-    
+
     /**
      * Displays a notification message on the bottom of the screen for five seconds
      * @param {Object} username The chat conversation where the notification links to
      * @param {Object} message The message to display
      */
     function showNotification(username, message){
-    
+
         // Add the username in the notification class, it is required to
         // determine what user it represents when the notification is clicked
         if (!hideNotifications) {
@@ -157,13 +157,13 @@ $(function(){
         // If the chatlog doesn't exist, a new empty one is made to prevent errors later on
         if (! chatlogs[contact]){
             chatlogs[contact] = "";
-            
+
             // Only show a notification if it wasn't sent by Me
             if (from != "Me") {
                 showNotification(contact, contact + " says: " + message);
             }
         }
-        
+
         // Add timestamp and sender to message
         message = "[" + timestamp + "] <" + from + "> " + message;
 
@@ -300,7 +300,7 @@ $(function(){
 
                 // To update the HTML a render will be required
                 changeOccured = true;
-                
+
                 // Display a notification if a user has logged in
                 if (response.contacts[j].status == "online") {
                     showNotification(response.contacts[j].user, response.contacts[j].user + " has logged in.");
@@ -338,9 +338,9 @@ $(function(){
                 selectedChatContact = e.currentTarget.id;
             });
 
-            // No longer hide notifications (if they still were being hidden)
+            // No longer hide notifications (if they were still being hidden)
             hideNotifications = false;
-            
+
             // Update the number of online contacts in the My Sakai menu
             $("#chatcounter").html(onlineContacts.length);
         }
@@ -388,7 +388,7 @@ $(function(){
                     setTimeout(checkNewMessages, 3000);
                 },
                 error: function(){
-                    
+
                     // The user has signed off
                     // This function will be enabled again from the moment the user signs in, and is redirected to the My Sakai page
                     checkingMessages = false;
@@ -449,7 +449,7 @@ $(function(){
                 goBackToLogin = true;
             },
             error: function(){
-                
+
                 // The user is no longer active, destroy the session and go to the sign in page
                 console.log("getPresence error");
                 performSignOut();
@@ -478,10 +478,11 @@ $(function(){
     };
 
     /**
-     * Show the user image
-     * @param {String} username The name of the user to show the image from
+     * Get user information
+     * @param {String} username The name of the user to get the information from
+     * @param {Object} callback The callback function
      */
-    var getUserImage = function(username){
+    var getUser = function(username, callback){
         var returnvalue;
 
         // Get profile data from user
@@ -493,13 +494,13 @@ $(function(){
             success: function(data){
 
                 // Return the location of the image
-                returnvalue = constructProfilePicture(data.results[0]);
+                returnvalue = data.results[0];
             },
             error: function(){
-                console.log("getUserImage: Could not find the user");
+                console.log("getUser: Could not find the user");
             },
             complete: function(data){
-                showRecentMessage(true, returnvalue);
+                callback(returnvalue);
             }
         });
     };
@@ -514,25 +515,21 @@ $(function(){
      * @param {Boolean} callback JSON response
      * @param {String} image Path to image
      */
-    var showRecentMessage = function(callback, image){
+    var showRecentMessage = function(){
 
-        // Check if callback from getUserImage
-        if (!callback) {
-
-            // Get path to image
-            // This function will sent the result to this function, with the callback parameter set to true
-            getUserImage(messageArray.messages[selectedMessage].from);
-        } else {
+        // This function will send the user profile to this function
+        getUser(messageArray.messages[selectedMessage].from, function(user){
 
             // Assemble message array
+            // The image is obtained out of the profile information
             message = {
                 all: messageArray.messages[selectedMessage],
-                image: image
+                image: constructProfilePicture(user)
             };
 
             // Render the template
             $sakai3_message.html($.TemplateRenderer($sakai3_message_template, message));
-        }
+        });
     };
 
     /**
@@ -612,7 +609,7 @@ $(function(){
             cache: false,
             success: function(data){
                 loadRecentMessages(data);
-                
+
                 // Update the number of online contacts in the My Sakai menu
                 $("#messagecounter").html(data.results.length);
             },
@@ -753,11 +750,11 @@ $(function(){
             url: sakai.config.URL.PRESENCE_SERVICE,
             type: "POST",
             success: function(){
-                console.log("signed out")
+                console.log("signed out");
             },
             data: data
         });
-        
+
         /*
          * Will do a POST request to the logout service, which will cause the
          * session to be destroyed. After this, we will redirect again to the
@@ -833,7 +830,7 @@ $(function(){
         $(".chat_list").remove();
         $(".messages_list").remove();
         $(".profile_list").remove();
-        
+
         // Clear contacts list and chatlogs
         contacts = [];
         chatlogs = [];
@@ -848,7 +845,7 @@ $(function(){
     var onMySakaiOpen = function(){
         $sakai3_password.val("");
         $("#login_fail").hide();
-        
+
         // Get the recent messages so the correct number is displayed
         getRecentMessages();
 
@@ -858,7 +855,7 @@ $(function(){
             getPresence();
             setPresence();
         }
-        
+
         // Start checking for new messages if it isn't al ready
         if (!checkingMessages){
             checkingMessages = true;
@@ -891,9 +888,9 @@ $(function(){
      * Execute function when the Message screen opens
      */
     var onMessageOpen = function(){
-        showRecentMessage(false, false);
+        showRecentMessage();
     };
-    
+
     /**
      * Execute function when the Chat screen opens
      */
@@ -902,13 +899,20 @@ $(function(){
         // Clear the textarea
         // This is required because future additions are just appended
         $sakai3_chatroom_log.val("");
-    }
+    };
 
     /**
      * Execute function when the Chatroom screen opens
      */
     var onChatroomOpen = function(){
         loadChatMessages();
+
+        getUser(selectedChatContact, function(user){
+
+            // Show the name of the chat contact you're speaking with
+            $("#chatcontact").html(user.firstName + " " + user.lastName);
+            $("#chatbox_image").html("<img src='" + constructProfilePicture(user) + "' alt='' height='20', width='20' />");
+        });
     };
 
 
@@ -936,13 +940,13 @@ $(function(){
     });
 
     $("#notification_container").unbind().bind('click', function(e, data){
-        
-        // Instantly hide the notification 
+
+        // Instantly hide the notification
         $("#notification_container").hide();
-        
+
         // Equal the selected contact with the class
         selectedChatContact = $("#notification_container").attr("class");
-        
+
         // Go to the chatroom screen
         // The conversation with the selected chat contact will automatically be loaded
         jQt.goTo("#chatroom", "slide");
