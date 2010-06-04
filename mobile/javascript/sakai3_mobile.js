@@ -31,7 +31,7 @@ $(function(){
 
     var checkingMessages = false;
     var checkingOnline = false;
-    var hideNotifications = true;
+    var contactsLoaded = false;
     var pulltime = "2100-10-10T10:10:10.000Z";
 
     var selectedChatContact;
@@ -54,10 +54,10 @@ $(function(){
      * @param {Object} message The message to display
      */
     function showNotification(username, message){
+        if (contactsLoaded) {
 
-        // Add the username in the notification class, it is required to
-        // determine what user it represents when the notification is clicked
-        if (!hideNotifications) {
+            // Add the username in the notification class, it is required to
+            // determine what user it represents when the notification is clicked
             $("#notification_container").removeClass().addClass(username);
             $("#notification_container").html(message);
             $("#notification_container").show().fadeOut(5000);
@@ -302,7 +302,7 @@ $(function(){
                 changeOccured = true;
 
                 // Display a notification if a user has logged in
-                if (response.contacts[j].status == "online") {
+                if (response.contacts[j].status == "online"){
                     showNotification(response.contacts[j].user, response.contacts[j].user + " has logged in.");
                 }
             }
@@ -313,8 +313,8 @@ $(function(){
             }
         }
 
-        // If a user joined or left
-        if (changeOccured){
+        // If a user joined or left, or the contacts haven't been loaded before
+        if (changeOccured || !contactsLoaded){
 
             // Order the contacts by status, then by first name
             response.contacts.sort(sortColumns);
@@ -338,11 +338,11 @@ $(function(){
                 selectedChatContact = e.currentTarget.id;
             });
 
-            // No longer hide notifications (if they were still being hidden)
-            hideNotifications = false;
-
             // Update the number of online contacts in the My Sakai menu
             $("#chatcounter").html(onlineContacts.length);
+
+            // Contacts have been loaded
+            contactsLoaded = true;
         }
     };
 
@@ -362,7 +362,7 @@ $(function(){
         var data = {};
 
         // Check if the time is not 0, if so set the current time
-        if (time.length !== 0) {
+        if (time.length !== 0){
             data.t = time;
         }
 
@@ -380,7 +380,7 @@ $(function(){
                     pulltime = data.pulltime;
 
                     // Get the message updates if the update variable is true
-                    if (data.update) {
+                    if (data.update){
                         loadChatText();
                     }
 
@@ -517,7 +517,7 @@ $(function(){
      */
     var showRecentMessage = function(){
 
-        // This function will send the user profile to this function
+        // Receive the user profile
         getUser(messageArray.messages[selectedMessage].from, function(user){
 
             // Assemble message array
@@ -538,7 +538,7 @@ $(function(){
      */
     var renderRecentMessages = function(response){
 
-        if (response) {
+        if (response){
 
             // Create result objects based on response JSON data
             for (var j = 0, l = response.results.length; j < l; j++){
@@ -727,15 +727,18 @@ $(function(){
      * @param {Boolean} success The sign in succeeded (true) or failed (false)
      */
     var checkSigninSuccess = function(data, success){
-        if (success){
+        getSignedIn(function(signedIn){
+            if (signedIn) {
 
-            // Display the My Sakai page
-            jQt.goTo("#mysakai", "slide");
-        } else {
+                // Display the My Sakai page
+                jQt.goTo("#mysakai", "slide");
+            }
+            else {
 
-            // Display message on the Sign in page
-            $login_fail.show();
-        }
+                // Display message on the Sign in page
+                $login_fail.show();
+            }
+        });
     };
 
     /**
@@ -750,7 +753,6 @@ $(function(){
             url: sakai.config.URL.PRESENCE_SERVICE,
             type: "POST",
             success: function(){
-                console.log("signed out");
             },
             data: data
         });
@@ -790,14 +792,10 @@ $(function(){
             url: "/system/sling/formlogin",
             type: "POST",
             success: function(){
-
-                // Show the My Sakai screen
-                checkSigninSuccess(data, true);
+                checkSigninSuccess();
             },
             error: function(){
-
-                // Show an error on the Sign in page
-                checkSigninSuccess(data, false);
+                checkSigninSuccess();
             },
             data: data
         });
@@ -835,8 +833,8 @@ $(function(){
         contacts = [];
         chatlogs = [];
 
-        // Hide all notifications
-        hideNotifications = true;
+        // Reset contactsLoaded
+        contactsLoaded = false;
     };
 
     /**
@@ -1003,11 +1001,14 @@ $(function(){
         getSignedIn(function(signedIn){
 
             // If the user is signed in, go to the My Sakai page
-            if (signedIn) {
-                jQt.goTo("#mysakai");
+            if (signedIn){
+                jQt.goTo("#mysakai", "slide");
             }
         });
     };
+
+    $(window).bind('hashchange', function(){
+    });
 
     init();
 });
