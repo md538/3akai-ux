@@ -186,7 +186,7 @@ sakai.navigationchat = function(tuid, showSettings){
     // Seach
     var $general_search_form = $("#genaral_search_container form");
     var $general_search_input = $("#general_search_input");
-    var isMessage = true;
+    var $general_search_input_message = $("#general_search_input_message");
 
     // User Link
     var userLink = "#user_link";
@@ -455,15 +455,10 @@ sakai.navigationchat = function(tuid, showSettings){
     $general_search_input.bind("focus", function(ev){
 
         // Check if the default message is displayed
-        // Instead of using this boolean I could check whether or not the input value equals the default message,
-        // but that would make it impossible to actually search for the default message itself
-        if (isMessage){
+        if (!$general_search_input.hasClass(searchInputFocusClass)){
 
             // Make the search input field empty and the text black
             $general_search_input.val("").addClass(searchInputFocusClass);
-
-            // Reset the boolean which keeps track if a message is displayed or not
-            isMessage = false;
         }
     });
 
@@ -478,10 +473,7 @@ sakai.navigationchat = function(tuid, showSettings){
 
              // Equal the input value with the default message, stored as a hidden input field in the HTML
              // Remove the class which makes the text black
-             $general_search_input.val($("#general_search_input_message").val()).removeClass(searchInputFocusClass);
-
-             // Adjust the boolean which keeps track if a message is displayed or not
-             isMessage = true;
+             $general_search_input.val($general_search_input_message.val()).removeClass(searchInputFocusClass);
          }
     });
 
