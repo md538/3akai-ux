@@ -186,7 +186,7 @@ sakai.navigationchat = function(tuid, showSettings){
     // Seach
     var $general_search_form = $("#genaral_search_container form");
     var $general_search_input = $("#general_search_input");
-    var searchFocus = false;
+    var isMessage = true;
 
     // User Link
     var userLink = "#user_link";
@@ -449,14 +449,40 @@ sakai.navigationchat = function(tuid, showSettings){
     };
 
     /**
-     * If this is the first time the field gets focus, we'll make his text color black
-     * and remove the default value
+     * If the default message is displayed, remove it and make the text color black
+     * This function gets executed on focus
      */
     $general_search_input.bind("focus", function(ev){
-        if (!searchFocus) {
+
+        // Check if the default message is displayed
+        // Instead of using this boolean I could check whether or not the input value equals the default message,
+        // but that would make it impossible to actually search for the default message itself
+        if (isMessage){
+
+            // Make the search input field empty and the text black
             $general_search_input.val("").addClass(searchInputFocusClass);
-            searchFocus = true;
+
+            // Reset the boolean which keeps track if a message is displayed or not
+            isMessage = false;
         }
+    });
+
+    /**
+     * Display the default value if no input is provided
+     * This function gets executed on blur = "unfocus"
+     */
+    $general_search_input.bind("blur", function(ev){
+
+         // Only execute code when no input is provided
+         if ($.trim($general_search_input.val()) === ""){
+
+             // Equal the input value with the default message, stored as a hidden input field in the HTML
+             // Remove the class which makes the text black
+             $general_search_input.val($("#general_search_input_message").val()).removeClass(searchInputFocusClass);
+
+             // Adjust the boolean which keeps track if a message is displayed or not
+             isMessage = true;
+         }
     });
 
     /**
