@@ -83,6 +83,15 @@ sakai.s23courses = function(tuid, showSettings){
         parseglobal = {
             all: globalfeed
         };
+        
+        // The parseglobal.all.sites variable is used in the template
+        // When no data is available, the variable is undefined and TrimPath crashes
+        // If it's a nullstring instead, everything works fine
+        if(!parseglobal.all.sites){
+            parseglobal = {
+                all: { sites: ""  }
+            };
+        }
 
         // Parse the template with the new modified feeds
         parseTemplates();
