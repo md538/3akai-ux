@@ -89,7 +89,7 @@ sakai.s23courses = function(tuid, showSettings){
         // If it's a nullstring instead, everything works fine
         if(!parseglobal.all.sites){
             parseglobal = {
-                all: { sites: ""  }
+                all: { sites: "" }
             };
         }
 
